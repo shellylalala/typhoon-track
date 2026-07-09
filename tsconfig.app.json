@@ -16,6 +16,7 @@
     "composite": true,
     "declaration": true,
     "jsx": "react-jsx",
+    "emitDeclarationOnly": true,
 
     /* Linting */
     "noUnusedLocals": true,
