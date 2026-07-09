@@ -26,8 +26,8 @@ const TyphoonListPanel = () => {
     (a, b) => (b.active ? 1 : 0) - (a.active ? 1 : 0),
   );
   const allIds = sorted.map((t) => t.id);
-  const allChecked = allIds.every((id) => selectedIds.has(id));
-  const count = selectedIds.size;
+  const allChecked = allIds.every((id) => selectedIds.includes(id));
+  const count = selectedIds.length;
 
   return (
     <div className="panel typhoon-list-panel">
@@ -55,7 +55,7 @@ const TyphoonListPanel = () => {
             <label>
               <input
                 type="checkbox"
-                checked={selectedIds.has(t.id)}
+                checked={selectedIds.includes(t.id)}
                 onChange={() => toggleId(t.id)}
               />
               <span className="typhoon-name">

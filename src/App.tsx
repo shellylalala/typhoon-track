@@ -1,10 +1,8 @@
-import { MapContainer, TyphoonListPanel } from "./components";
-
+import { TyphoonListPanel, MapContainer, TyphoonDataPanel } from "./components";
 import { useTyphoonStore } from "./store/typhoon";
 
 function App() {
   const selectedIds = useTyphoonStore((s) => s.selectedIds);
-  const firstId = selectedIds.values().next().value ?? null;
 
   return (
     <div className="app-shell">
@@ -12,8 +10,11 @@ function App() {
         <TyphoonListPanel />
       </aside>
       <main className="map-area">
-        <MapContainer typhoonId={firstId} />
+        <MapContainer selectedIds={selectedIds} />
       </main>
+      <aside className="data-sidebar">
+        <TyphoonDataPanel />
+      </aside>
     </div>
   );
 }
