@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ["maplibre-gl"],
+  },
+  worker: {
+    format: "es",
+  },
   build: {
     outDir: "dist",
     sourcemap: false,

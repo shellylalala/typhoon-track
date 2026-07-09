@@ -20,7 +20,8 @@
 
 .map-area {
   flex: 1;
-  background: #f0f4f8;
+  position: relative;
+  overflow: hidden;
 }
 
 /* ─── 列表面板 ─── */
