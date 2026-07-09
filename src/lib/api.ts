@@ -42,21 +42,25 @@ function parseQuadZj(
 }
 
 /** 客户端归一化：兼容 dev proxy 原始 JSON 和 Worker 归一化后的数据 */
-function normalizeDetail(raw: any): TyphoonData {
+function normalizeDetail(raw: Record<string, unknown>): TyphoonData {
   // 提取顶层 forecasts —— Worker 已归一化则直接用，否则从 points[last].forecast 提取
-  let forecasts = raw.forecasts ?? [];
-  if ((!forecasts || forecasts.length === 0) && Array.isArray(raw.points)) {
-    for (let i = raw.points.length - 1; i >= 0; i--) {
-      const fc = raw.points[i]?.forecast;
+  let forecasts: TyphoonData["forecasts"] =
+    (raw.forecasts as TyphoonData["forecasts"]) ?? [];
+  const pts = raw.points as Array<Record<string, unknown>> | undefined;
+  if ((!forecasts || forecasts.length === 0) && Array.isArray(pts)) {
+    for (let i = pts.length - 1; i >= 0; i--) {
+      const fc = pts[i]?.forecast as Array<Record<string, unknown>> | undefined;
       if (fc && fc.length) {
-        forecasts = fc.map((f: any) => ({
-          agency: f.tm,
-          points: (f.forecastpoints ?? []).map((q: any) => ({
-            time: q.time,
-            t: Date.parse((q.time ?? "").replace(" ", "T") + "+08:00"),
+        forecasts = fc.map((f) => ({
+          agency: String(f.tm ?? ""),
+          points: (
+            (f.forecastpoints as Array<Record<string, unknown>>) ?? []
+          ).map((q) => ({
+            time: String(q.time ?? ""),
+            t: Date.parse(String(q.time ?? "").replace(" ", "T") + "+08:00"),
             lng: Number(q.lng),
             lat: Number(q.lat),
-            strong: q.strong || "",
+            strong: String(q.strong ?? ""),
             speed: Number(q.speed) > 0 ? Number(q.speed) : null,
             pressure: Number(q.pressure) > 0 ? Number(q.pressure) : null,
           })),
@@ -67,26 +71,34 @@ function normalizeDetail(raw: any): TyphoonData {
   }
 
   return {
-    id: String(raw.tfid ?? raw.id),
-    name: raw.name,
-    enName: raw.enname ?? raw.enName,
+    id: String(raw.tfid ?? raw.id ?? ""),
+    name: String(raw.name ?? ""),
+    enName: String(raw.enname ?? raw.enName ?? ""),
     active: raw.isactive === "1" || raw.active === true,
-    source: raw.source ?? "浙江省水利厅",
-    fetchedAt: raw.fetchedAt ?? new Date().toISOString(),
-    points: (raw.points ?? []).map((p: any) => ({
-      time: p.time,
-      t: p.t ?? Date.parse((p.time ?? "").replace(" ", "T") + "+08:00"),
+    source: String(raw.source ?? "浙江省水利厅"),
+    fetchedAt: String(raw.fetchedAt ?? new Date().toISOString()),
+    points: (pts ?? []).map((p) => ({
+      time: String(p.time ?? ""),
+      t:
+        Number(p.t) ||
+        Date.parse(String(p.time ?? "").replace(" ", "T") + "+08:00"),
       lng: Number(p.lng),
       lat: Number(p.lat),
-      strong: p.strong || "",
+      strong: String(p.strong ?? ""),
       power: p.power != null ? Number(p.power) : null,
       speed: Number(p.speed),
       pressure: Number(p.pressure),
-      moveSpeed: p.moveSpeed ?? (p.movespeed ? Number(p.movespeed) : null),
-      moveDir: p.moveDir ?? p.movedirection ?? null,
-      r7: p.r7 ?? parseQuadZj(p.radius7),
-      r10: p.r10 ?? parseQuadZj(p.radius10),
-      r12: p.r12 ?? parseQuadZj(p.radius12),
+      moveSpeed: Number(p.moveSpeed ?? p.movespeed) || null,
+      moveDir: (p.moveDir ?? p.movedirection ?? null) as string | null,
+      r7: (p.r7 ?? parseQuadZj(String(p.radius7 ?? ""))) as
+        | [number, number, number, number]
+        | null,
+      r10: (p.r10 ?? parseQuadZj(String(p.radius10 ?? ""))) as
+        | [number, number, number, number]
+        | null,
+      r12: (p.r12 ?? parseQuadZj(String(p.radius12 ?? ""))) as
+        | [number, number, number, number]
+        | null,
     })),
     forecasts,
   };
@@ -98,3 +110,26 @@ export const fetchTyphoonDetail = async (id: string): Promise<TyphoonData> => {
   const raw = await res.json();
   return normalizeDetail(raw);
 };
+
+// ─── 地理编码（Open-Meteo，免费无 key，支持全球城市搜索）───
+export interface GeocodingResult {
+  name: string;
+  country: string;
+  lat: number;
+  lng: number;
+}
+
+export async function searchCity(query: string): Promise<GeocodingResult[]> {
+  if (query.length < 2) return [];
+  const res = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=8&language=zh&format=json`,
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.results ?? []).map((r: Record<string, unknown>) => ({
+    name: String(r.name ?? ""),
+    country: String(r.country ?? ""),
+    lat: Number(r.latitude),
+    lng: Number(r.longitude),
+  }));
+}

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { City } from "../lib/impact";
 
 interface TyphoonState {
   /** 当前选中的台风id集合 */
@@ -30,6 +31,10 @@ interface TyphoonState {
   setIsPlaying: (v: boolean) => void;
   setPlaybackSpeed: (v: number) => void;
   setPlaybackMax: (max: number | null) => void;
+  /** 自定义城市 */
+  customCities: City[];
+  addCustomCity: (city: City) => void;
+  removeCustomCity: (id: string) => void;
 }
 
 export const useTyphoonStore = create<TyphoonState>((set, get) => ({
@@ -40,6 +45,12 @@ export const useTyphoonStore = create<TyphoonState>((set, get) => ({
   isPlaying: false,
   playbackSpeed: 1,
   playbackMax: null,
+  customCities: [],
+
+  addCustomCity: (city) =>
+    set((s) => ({ customCities: [...s.customCities, city] })),
+  removeCustomCity: (id) =>
+    set((s) => ({ customCities: s.customCities.filter((c) => c.id !== id) })),
 
   toggleId: (id: string) => {
     set((state) => {

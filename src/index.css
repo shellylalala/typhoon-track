@@ -116,12 +116,22 @@
   border-left: 1px solid #e0e0e0;
   overflow-y: auto;
   background: #fff;
-}
-.data-panel {
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
+
+/* 数据面板和倒计时各占一半 */
+.data-sidebar > .data-panel {
+  flex: 1;
+  overflow-y: auto;
+  border-bottom: 1px solid #eee;
+}
+.data-sidebar > .impact-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 60px;
+}
+
 .data-panel.empty {
   display: flex;
   align-items: center;
@@ -136,6 +146,9 @@
   border-bottom: 2px solid #e0e0e0;
   background: #f8f9fa;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 .dp-tab {
   flex: 1;
@@ -355,4 +368,147 @@
   color: #444;
   white-space: nowrap;
   min-width: 130px;
+}
+
+/* ─── 城市倒计时面板 ─── */
+.impact-panel {
+  padding: 10px 12px;
+  font-size: 13px;
+  overflow-y: auto;
+  height: 100%;
+}
+.impact-panel.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+.impact-header {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+.impact-row {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border-left: 4px solid transparent;
+  transition: box-shadow 0.15s;
+}
+.impact-row:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.impact-row.affected {
+  background: #ffebee;
+  border-left-color: #d32f2f;
+}
+.impact-row.imminent {
+  background: #fff3e0;
+  border-left-color: #f57c00;
+}
+.impact-row.warning {
+  background: #fffde7;
+  border-left-color: #fbc02d;
+}
+.impact-row.watching {
+  background: #e8f0fe;
+  border-left-color: #1976d2;
+}
+.impact-row.none {
+  background: #f8f9fa;
+}
+.impact-row.focused {
+  box-shadow:
+    0 0 0 2px #1976d2,
+    0 2px 8px rgba(25, 118, 210, 0.15);
+}
+.impact-city {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 13px;
+}
+.impact-city::before {
+  content: "📍";
+  font-size: 11px;
+}
+.impact-level-tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.07);
+  color: #555;
+  margin-left: auto;
+}
+.impact-time {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  font-family: "SF Mono", "Cascadia Code", monospace;
+  margin: 2px 0 0 20px;
+}
+.impact-action {
+  font-size: 11px;
+  color: #888;
+  margin: 2px 0 0 20px;
+}
+
+/* custom city search */
+.impact-add {
+  position: relative;
+  margin-bottom: 10px;
+}
+.impact-input {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  background: #fafafa;
+  transition: border-color 0.15s;
+}
+.impact-input:focus {
+  border-color: #1976d2;
+  background: #fff;
+}
+.impact-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.impact-suggest-item {
+  padding: 7px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.impact-suggest-item:hover {
+  background: #e3f2fd;
+}
+.impact-remove {
+  border: none;
+  background: none;
+  color: #bbb;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  margin-left: auto;
+}
+.impact-remove:hover {
+  color: #d32f2f;
 }

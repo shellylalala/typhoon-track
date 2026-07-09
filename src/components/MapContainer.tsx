@@ -1,48 +1,44 @@
 import { useEffect, useRef } from "react";
-import maplibregl from "maplibre-gl";
 import { useMaplibre } from "../hooks/useMaplibre";
 import { TyphoonLayer } from "./";
 
 interface Props {
   selectedIds: string[];
+  activeTabId: string | null;
 }
-
-export default function MapContainer({ selectedIds = [] }: Props) {
+export default function MapContainer({ selectedIds = [], activeTabId }: Props) {
   const { map, loaded } = useMaplibre("map-container");
-  const lastFit = useRef<string>("");
 
   // 当选中列表变化时，fitBounds 到所有台风路径
-  useEffect(() => {
-    if (!map || !loaded || selectedIds.length === 0) return;
-    const key = selectedIds.join(",");
-    if (key === lastFit.current) return;
-    lastFit.current = key;
+  const lastCenter = useRef<string>("");
 
-    // 需要等所有数据的 bounds —— 用 Promise.all 拉
-    Promise.all(
-      selectedIds.map((id) =>
-        fetch(`/api/typhoon/${id}`)
-          .then((r) => r.json())
-          .catch(() => null),
-      ),
-    ).then((results) => {
-      if (!map) return;
-      const bounds = new maplibregl.LngLatBounds();
-      let hasPoint = false;
-      for (const data of results) {
-        if (!data?.points) continue;
-        for (const p of data.points) {
+  useEffect(() => {
+    if (!map || !loaded) return;
+    const targetId =
+      activeTabId && selectedIds.includes(activeTabId)
+        ? activeTabId
+        : selectedIds[0];
+    if (!targetId || targetId === lastCenter.current) return;
+    lastCenter.current = targetId;
+
+    fetch(`/api/typhoon/${targetId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!map || !data?.points?.length) return;
+        for (let i = data.points.length - 1; i >= 0; i--) {
+          const p = data.points[i];
           if (p.lng && p.lat) {
-            bounds.extend([Number(p.lng), Number(p.lat)]);
-            hasPoint = true;
+            map.easeTo({
+              center: [Number(p.lng), Number(p.lat)],
+              zoom: 5,
+              duration: 600,
+            });
+            return;
           }
         }
-      }
-      if (hasPoint) {
-        map.fitBounds(bounds, { padding: 80, maxZoom: 12, duration: 600 });
-      }
-    });
-  }, [map, loaded, selectedIds]);
+      })
+      .catch(() => {});
+  }, [map, loaded, selectedIds, activeTabId]);
 
   return (
     <div

@@ -3,11 +3,13 @@ import {
   MapContainer,
   TyphoonDataPanel,
   PlaybackBar,
+  ImpactPanel,
 } from "./components";
 import { useTyphoonStore } from "./store/typhoon";
 
 function App() {
   const selectedIds = useTyphoonStore((s) => s.selectedIds);
+  const activeTabId = useTyphoonStore((s) => s.activeTabId);
 
   return (
     <div className="app-shell">
@@ -15,10 +17,11 @@ function App() {
         <TyphoonListPanel />
       </aside>
       <main className="map-area">
-        <MapContainer selectedIds={selectedIds} />
+        <MapContainer selectedIds={selectedIds} activeTabId={activeTabId} />
       </main>
       <aside className="data-sidebar">
         <TyphoonDataPanel />
+        <ImpactPanel />
       </aside>
       <PlaybackBar />
     </div>
