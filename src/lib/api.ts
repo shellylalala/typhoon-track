@@ -1,4 +1,4 @@
-import type { TyphoonListItem } from "../types/typhoon";
+import type { TyphoonData, TyphoonListItem } from "../types/typhoon";
 
 // 原始浙江源列表项
 interface RawListItem {
@@ -28,4 +28,11 @@ export const fetchTyphoonList = async (
   if (!res.ok) throw new Error(`列表请求失败: ${res.status}`);
   const raw: RawListItem[] = await res.json();
   return raw.map(normalize);
+};
+
+export const fetchTyphoonDetail = async (id: string): Promise<TyphoonData> => {
+  const res = await fetch(`/api/typhoon/${id}`);
+  if (!res.ok) throw new Error(`详情请求失败: ${res.status}`);
+  const raw: TyphoonData = await res.json();
+  return raw;
 };
