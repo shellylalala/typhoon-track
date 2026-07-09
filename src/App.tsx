@@ -4,6 +4,7 @@ import {
   TyphoonDataPanel,
   PlaybackBar,
   ImpactPanel,
+  RefreshBar,
 } from "./components";
 import { useTyphoonStore } from "./store/typhoon";
 
@@ -18,6 +19,7 @@ function App() {
       </aside>
       <main className="map-area">
         <MapContainer selectedIds={selectedIds} activeTabId={activeTabId} />
+        <RefreshBar />
       </main>
       <aside className="data-sidebar">
         <TyphoonDataPanel />

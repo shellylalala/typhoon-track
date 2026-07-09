@@ -4,3 +4,4 @@ export { default as TyphoonLayer } from "./TyphoonLayer.tsx";
 export { default as TyphoonDataPanel } from "./TyphoonDataPanel.tsx";
 export { default as PlaybackBar } from "./PlaybackBar.tsx";
 export { default as ImpactPanel } from "./ImpactPanel.tsx";
+export { default as RefreshBar } from "./RefreshBar.tsx";
