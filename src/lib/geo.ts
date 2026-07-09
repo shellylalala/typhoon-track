@@ -273,3 +273,12 @@ export const forecastsToGeoJSON = (
 
   return { type: "FeatureCollection", features };
 };
+
+// ─── 回放：按时间截断 points ───
+export const filterPointsByTime = (
+  points: Array<{ t: number }>,
+  cutoff: number | null,
+): typeof points => {
+  if (cutoff === null) return points;
+  return points.filter((p) => p.t <= cutoff);
+};

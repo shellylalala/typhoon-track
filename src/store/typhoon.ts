@@ -17,12 +17,29 @@ interface TyphoonState {
   forecastHidden: Set<string>;
   /** 切换预报机构可见性 */
   toggleForecastAgency: (agency: string) => void;
+  /** 回放当前时间 (epoch ms)；null = 显示全部路径 */
+  playbackTime: number | null;
+  /** 是否正在播放 */
+  isPlaying: boolean;
+  /** 播放倍速 */
+  playbackSpeed: number; // 1 | 2 | 4
+  /** 回放时间上限 (epoch ms) */
+  playbackMax: number | null;
+
+  setPlaybackTime: (t: number | null) => void;
+  setIsPlaying: (v: boolean) => void;
+  setPlaybackSpeed: (v: number) => void;
+  setPlaybackMax: (max: number | null) => void;
 }
 
 export const useTyphoonStore = create<TyphoonState>((set, get) => ({
   selectedIds: [],
   activeTabId: null,
   forecastHidden: new Set<string>(),
+  playbackTime: null,
+  isPlaying: false,
+  playbackSpeed: 1,
+  playbackMax: null,
 
   toggleId: (id: string) => {
     set((state) => {
@@ -61,4 +78,8 @@ export const useTyphoonStore = create<TyphoonState>((set, get) => ({
 
   setActiveTab: (id: string | null) => set({ activeTabId: id }),
   isSelected: (id: string) => get().selectedIds.includes(id),
+  setPlaybackTime: (t) => set({ playbackTime: t }),
+  setIsPlaying: (v) => set({ isPlaying: v }),
+  setPlaybackSpeed: (v) => set({ playbackSpeed: v }),
+  setPlaybackMax: (max) => set({ playbackMax: max }),
 }));

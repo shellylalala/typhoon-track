@@ -1,4 +1,9 @@
-import { TyphoonListPanel, MapContainer, TyphoonDataPanel } from "./components";
+import {
+  TyphoonListPanel,
+  MapContainer,
+  TyphoonDataPanel,
+  PlaybackBar,
+} from "./components";
 import { useTyphoonStore } from "./store/typhoon";
 
 function App() {
@@ -15,6 +20,7 @@ function App() {
       <aside className="data-sidebar">
         <TyphoonDataPanel />
       </aside>
+      <PlaybackBar />
     </div>
   );
 }
