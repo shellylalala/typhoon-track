@@ -1,6 +1,6 @@
 import { useTyphoonStore } from "../store/typhoon";
 import { useTyphoonData } from "../hooks/useTyphoonData";
-import { getIntensityLabel } from "../lib/geo";
+import { getIntensityLabel, getAgencyColor } from "../lib/geo";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTyphoonList } from "../lib/api";
 import type { TyphoonData } from "../types/typhoon";
@@ -26,6 +26,9 @@ function TyphoonTab({ id }: { id: string }) {
 
 function TyphoonDetail({ data, label }: { data: TyphoonData; label: string }) {
   const latest = data.points[data.points.length - 1];
+
+  const forecastHidden = useTyphoonStore((s) => s.forecastHidden);
+  const toggleForecastAgency = useTyphoonStore((s) => s.toggleForecastAgency);
 
   return (
     <div className="typhoon-detail">
@@ -103,7 +106,18 @@ function TyphoonDetail({ data, label }: { data: TyphoonData; label: string }) {
           </div>
           {data.forecasts.map((fc) => (
             <div key={fc.agency} className="dp-agency">
-              <span className="dp-agency-name">{fc.agency}</span>
+              <label className="dp-agency-label">
+                <input
+                  type="checkbox"
+                  checked={!forecastHidden.has(fc.agency)}
+                  onChange={() => toggleForecastAgency(fc.agency)}
+                />
+                <span
+                  className="dp-agency-dot"
+                  style={{ background: getAgencyColor(fc.agency) }}
+                />
+                {fc.agency}
+              </label>
               <span className="dp-agency-count">{fc.points.length} 个点</span>
             </div>
           ))}

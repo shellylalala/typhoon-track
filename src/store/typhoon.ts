@@ -13,11 +13,16 @@ interface TyphoonState {
   setActiveTab: (id: string | null) => void;
   /** 当前激活的标签页id */
   activeTabId: string | null;
+  /** 隐藏的预报机构集合 */
+  forecastHidden: Set<string>;
+  /** 切换预报机构可见性 */
+  toggleForecastAgency: (agency: string) => void;
 }
 
 export const useTyphoonStore = create<TyphoonState>((set, get) => ({
   selectedIds: [],
   activeTabId: null,
+  forecastHidden: new Set<string>(),
 
   toggleId: (id: string) => {
     set((state) => {
@@ -39,6 +44,18 @@ export const useTyphoonStore = create<TyphoonState>((set, get) => ({
         return { selectedIds: [] };
       }
       return { selectedIds: [...ids] };
+    });
+  },
+
+  toggleForecastAgency: (agency: string) => {
+    set((state) => {
+      const next = new Set(state.forecastHidden);
+      if (next.has(agency)) {
+        next.delete(agency);
+      } else {
+        next.add(agency);
+      }
+      return { forecastHidden: next };
     });
   },
 

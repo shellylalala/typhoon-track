@@ -30,6 +30,17 @@ export const fetchTyphoonList = async (
   return raw.map(normalize);
 };
 
+/** 浙江源风圈顺序为 NE|SE|NW|SW，统一转为 NE|SE|SW|NW 的 Quad */
+function parseQuadZj(
+  s: string | undefined | null,
+): [number, number, number, number] | null {
+  if (!s) return null;
+  const parts = s.split("|").map(Number);
+  if (parts.length !== 4 || parts.some((n) => !isFinite(n) || n <= 0))
+    return null;
+  return [parts[0], parts[1], parts[3], parts[2]];
+}
+
 /** 客户端归一化：兼容 dev proxy 原始 JSON 和 Worker 归一化后的数据 */
 function normalizeDetail(raw: any): TyphoonData {
   // 提取顶层 forecasts —— Worker 已归一化则直接用，否则从 points[last].forecast 提取
@@ -73,9 +84,9 @@ function normalizeDetail(raw: any): TyphoonData {
       pressure: Number(p.pressure),
       moveSpeed: p.moveSpeed ?? (p.movespeed ? Number(p.movespeed) : null),
       moveDir: p.moveDir ?? p.movedirection ?? null,
-      r7: p.r7 ?? null,
-      r10: p.r10 ?? null,
-      r12: p.r12 ?? null,
+      r7: p.r7 ?? parseQuadZj(p.radius7),
+      r10: p.r10 ?? parseQuadZj(p.radius10),
+      r12: p.r12 ?? parseQuadZj(p.radius12),
     })),
     forecasts,
   };
