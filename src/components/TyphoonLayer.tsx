@@ -30,8 +30,6 @@ export default function TyphoonLayer({ id, map, ready }: Props) {
     removeLayers(map, id);
     setupDone.current = false;
 
-    const forecastHid = forecastHidden; // 快照
-
     // 实测路径 source + layer
     map.addSource(`${id}-line`, {
       type: "geojson",
@@ -105,11 +103,7 @@ export default function TyphoonLayer({ id, map, ready }: Props) {
       id: `${id}-fc-line`,
       type: "line",
       source: `${id}-fc`,
-      filter: [
-        "all",
-        ["==", ["get", "type"], "line"],
-        ["!", ["in", ["get", "agency"], ["literal", [...forecastHid]]]],
-      ],
+      filter: ["all", ["==", ["get", "type"], "line"], ["!", ["in", ["get", "agency"], ["literal", []]]]],
       paint: {
         "line-color": ["get", "color"],
         "line-width": 2,
@@ -121,11 +115,7 @@ export default function TyphoonLayer({ id, map, ready }: Props) {
       id: `${id}-fc-node`,
       type: "circle",
       source: `${id}-fc`,
-      filter: [
-        "all",
-        ["==", ["get", "type"], "node"],
-        ["!", ["in", ["get", "agency"], ["literal", [...forecastHid]]]],
-      ],
+      filter: ["all", ["==", ["get", "type"], "node"], ["!", ["in", ["get", "agency"], ["literal", []]]]],
       paint: {
         "circle-color": ["get", "color"],
         "circle-radius": 3.5,
@@ -139,7 +129,15 @@ export default function TyphoonLayer({ id, map, ready }: Props) {
       removeLayers(map, id);
       setupDone.current = false;
     };
-  }, [map, ready, data, id, forecastHidden]);
+  }, [map, ready, data, id]);
+
+  // ── Effect C：预报机构开关 → 只改 filter，不重建图层 ──
+  useEffect(() => {
+    if (!map || !ready || !setupDone.current) return;
+    const hidden = [...forecastHidden];
+    try { map.setFilter(`${id}-fc-line`, ["all", ["==", ["get", "type"], "line"], ["!", ["in", ["get", "agency"], ["literal", hidden]]]]); } catch {}
+    try { map.setFilter(`${id}-fc-node`, ["all", ["==", ["get", "type"], "node"], ["!", ["in", ["get", "agency"], ["literal", hidden]]]]); } catch {}
+  }, [map, ready, id, forecastHidden]);
 
   // ── Effect B：playbackTime 变化时只更新实测路径的数据 ──
   useEffect(() => {
